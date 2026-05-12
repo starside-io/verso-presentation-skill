@@ -23,6 +23,8 @@ Before you do anything else, run this small triage. Don't skip it. The first two
 
 3. **Capture the basics either way.** Title, audience(s), rough length (5 slides? 20?), tone (formal vs casual), and whether they want a particular theme or color palette. If you don't ask, you'll guess wrong.
 
+4. **Read the reference files before writing any slide content.** Before you create or edit any slide JSON, read [references/blocks.md](references/blocks.md) and [references/layouts.md](references/layouts.md) in full. These contain every valid block type, layout name, prop, and enum value. Do not guess field values from memory: look them up. Incorrect enum values (e.g. `"center"` instead of `"middle"` for vertical alignment) are silently accepted or rejected at render time, and debugging them is painful. The references are the source of truth.
+
 ## Path A: Markdown import
 
 The fastest happy path. Verso parses Markdown into slides using these rules:
@@ -140,6 +142,7 @@ Output goes to `dist/` unless `-o` says otherwise. Ask the user which format the
 
 ## What you should and shouldn't do
 
+- **Do** read [references/blocks.md](references/blocks.md) and [references/layouts.md](references/layouts.md) before writing any slide JSON. Never guess block types, layout names, or enum values from memory. Look them up.
 - **Do** open `verso edit` for the user once the deck is in decent shape. The visual editor is the primary intended authoring surface; you're scaffolding to save them time, not replacing it.
 - **Do** read 2-3 generated slides after `--from outline.md` and improve layouts and visual rhythm. The importer always produces all-`content`-layout slides with no decorations.
 - **Don't** install `@starside-io/verso-cli` globally without asking first. Global npm installs are sticky.

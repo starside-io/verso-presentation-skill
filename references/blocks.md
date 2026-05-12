@@ -12,6 +12,22 @@ Every entry in a slide's `content` array is a block. Each block has a `type` fie
 | `style_overrides` | object | Block-level color overrides. See themes.md. |
 | `align` | `{ horizontal, vertical }` | Per-block alignment. Most layouts ignore it; cards use it. |
 
+### `align` values
+
+The `align` object accepts `horizontal` and `vertical` keys:
+
+| Key | Valid values | Default |
+|-----|-------------|---------|
+| `horizontal` | `left`, `center`, `right` | `left` |
+| `vertical` | `top`, `middle`, `bottom` | `top` |
+
+Example:
+```json
+{ "align": { "horizontal": "center", "vertical": "middle" } }
+```
+
+**Do not use `center` for vertical alignment.** The correct vertical value is `middle`.
+
 ## Text blocks
 
 ### heading

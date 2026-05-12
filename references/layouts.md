@@ -37,10 +37,20 @@ Verso ships 17 built-in layouts. Set the layout on a slide with `"layout": "<nam
 ## Slide-level fields layouts can read
 
 - `slide.title` and `slide.header` (rendered by helper functions)
-- `slide.align` for per-slide horizontal and vertical alignment
+- `slide.align` for per-slide vertical alignment of content within the slide
 - `slide.transition` (runtime stamps the class)
 - `slide.notes`, `slide.annotation` (speaker mode only)
 - `slide.omit_from_agenda` (read by the agenda layout's fallback)
+
+### `slide.align` values
+
+| Value | Effect |
+|-------|--------|
+| `top` | Content pins to the top of the slide. |
+| `middle` | Content is vertically centered (default for most layouts). |
+| `bottom` | Content pins to the bottom. |
+
+**Do not use `center` for vertical alignment.** The correct value is `middle`. Verso will reject unknown values.
 
 ## Agenda auto-build
 
