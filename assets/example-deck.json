@@ -1,0 +1,17 @@
+{
+  "title": "Q4 Readout",
+  "theme": "verso-slate",
+  "paths": {
+    "full": { "label": "Full Deck" }
+  },
+  "variables": {
+    "author": "Mederic Burlet",
+    "client": "Acme Corp"
+  },
+  "watermark": {
+    "text": "DRAFT",
+    "position": "bottom-center",
+    "opacity": 0.18
+  },
+  "slide_order": ["cover", "agenda", "highlights", "metrics", "next-steps", "closing"]
+}

@@ -1,0 +1,35 @@
+{
+  "id": "highlights",
+  "header": "Q4",
+  "title": "What landed this quarter",
+  "layout": "content",
+  "transition": "fade",
+  "content": [
+    { "type": "accent-bar", "tone": "accent", "size": "thick", "orientation": "horizontal" },
+    { "type": "heading", "level": 2, "text": "Wins" },
+    {
+      "type": "bullets",
+      "items": [
+        "Shipped the new onboarding flow (3 weeks early)",
+        "Grew weekly active users by 18%",
+        "Closed 7 enterprise deals"
+      ]
+    },
+    {
+      "type": "card",
+      "tone": "surface",
+      "variant": "soft",
+      "padding": "md",
+      "content": [
+        { "type": "heading", "level": 3, "text": "Customer voice" },
+        {
+          "type": "quote",
+          "text": "Verso turned our weekly readouts from a chore into a deliverable.",
+          "attribution": "Sales lead, {{client}}"
+        }
+      ]
+    },
+    { "type": "callout", "tone": "info", "text": "Backfill data for Q1 to Q3 is in the appendix slides." }
+  ],
+  "notes": "Spend 90s on wins, 30s on the callout. Don't read the quote verbatim."
+}
