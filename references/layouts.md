@@ -37,20 +37,51 @@ Verso ships 17 built-in layouts. Set the layout on a slide with `"layout": "<nam
 ## Slide-level fields layouts can read
 
 - `slide.title` and `slide.header` (rendered by helper functions)
-- `slide.align` for per-slide vertical alignment of content within the slide
+- `slide.align` for per-slide alignment of content within the slide
 - `slide.transition` (runtime stamps the class)
 - `slide.notes`, `slide.annotation` (speaker mode only)
 - `slide.omit_from_agenda` (read by the agenda layout's fallback)
 
 ### `slide.align` values
 
-| Value | Effect |
-|-------|--------|
-| `top` | Content pins to the top of the slide. |
-| `middle` | Content is vertically centered (default for most layouts). |
-| `bottom` | Content pins to the bottom. |
+The flat form applies to BOTH the title zone and the content zone:
+
+```json
+"align": { "horizontal": "center", "vertical": "middle" }
+```
+
+| Key | Valid values | Default |
+|-----|-------------|---------|
+| `horizontal` | `left`, `center`, `right` | `left` |
+| `vertical` | `top`, `middle`, `bottom` | `top` |
 
 **Do not use `center` for vertical alignment.** The correct value is `middle`. Verso will reject unknown values.
+
+### Per-zone alignment (PowerPoint-style)
+
+Multi-zone layouts (`content`, `two-col`, `three-col`, `image-left`, `image-right`, `hero`, `agenda`, `compare`, `stats`, `big-number`, `timeline`, `author`) support separate alignment for the title strip and the content body:
+
+```json
+"align": {
+  "title":   { "horizontal": "left",   "vertical": "top"    },
+  "content": { "horizontal": "center", "vertical": "middle" }
+}
+```
+
+Use this when you want the title pinned to the top but the body centered vertically (the common "hero" feel without the hero layout). The flat form still works as a back-compat shortcut applied to both zones. Single-zone layouts (`cover`, `section`, `closing`, `quote`, `full-image`) ignore the nested form and use the flat values.
+
+## Layout-aware schema validation
+
+`Slide.parse` enforces minimum block counts per layout. The schema rejects unbalanced multi-col slides at load time with a readable error naming the slide id, the layout, and what's missing.
+
+| Layout | Requirement |
+|--------|-------------|
+| `two-col` | `content.length` must be a multiple of 2 (every column gets a block). |
+| `three-col` | `content.length` must be a multiple of 3. |
+| `image-left`, `image-right` | At least one block of type `image`. |
+| `compare` | At least two top-level `heading` groups (one per side). |
+
+This catches a common AI-authoring failure: generating a `two-col` slide with only 1 block (empty right column) or a `three-col` with 2 blocks (one column empty). If a slide refuses to parse, restructure the content or pick a different layout (`content` doesn't enforce anything).
 
 ## Agenda auto-build
 

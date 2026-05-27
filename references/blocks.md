@@ -28,6 +28,23 @@ Example:
 
 **Do not use `center` for vertical alignment.** The correct vertical value is `middle`.
 
+### Per-zone slide alignment
+
+Slides can optionally split alignment between the title zone (header + title) and the content zone (the blocks). Useful when you want the title pinned to the top but the body centered vertically (the PowerPoint-style behavior).
+
+```json
+{
+  "id": "intro",
+  "layout": "content",
+  "align": {
+    "title":   { "horizontal": "left",   "vertical": "top"    },
+    "content": { "horizontal": "center", "vertical": "middle" }
+  }
+}
+```
+
+The flat form (`{ horizontal, vertical }`) still applies to both zones; nested form wins per zone. The editor's Align dropdown shows Title and Content sections so users can set each independently. Collapses back to the flat form automatically when both zones match.
+
 ## Text blocks
 
 ### heading
@@ -52,6 +69,29 @@ Example:
 ```json
 { "type": "bullets", "items": ["First", "Second", "Third"] }
 ```
+
+Each item is either a plain string OR an object with optional per-item Phosphor icon:
+
+```json
+{
+  "type": "bullets",
+  "items": [
+    { "text": "Free-form content",       "icon": "stack",         "iconTone": "primary"   },
+    { "text": "Mix bullets, text, code", "icon": "squares-four",  "iconTone": "secondary" },
+    { "text": "No image required",       "icon": "image",         "iconTone": "accent"    },
+    "Plain string items still work too"
+  ]
+}
+```
+
+| Item field | Notes |
+|------------|-------|
+| `text` | Required when using the object form. The bullet text. |
+| `icon` | Phosphor icon id (kebab-case). Browse at <https://phosphoricons.com>. |
+| `iconWeight` | `thin` / `light` / `regular` / `bold` / `fill` / `duotone`. Default `regular`. |
+| `iconTone` | Color tone: `primary` / `secondary` / `accent` / `muted` / `surface`. Default `primary`. |
+
+In the editor, every bullet row has a small square icon-picker button next to its text input.
 
 ### quote
 
@@ -110,6 +150,31 @@ Iframe (YouTube, CodeSandbox, Figma) with a PDF-safe fallback.
 }
 ```
 
+### icon
+
+A standalone Phosphor icon block. Composes inside any layout or container.
+
+```json
+{
+  "type": "icon",
+  "name": "lightning",
+  "weight": "fill",
+  "size": 48,
+  "tone": "accent",
+  "label": "High priority"
+}
+```
+
+| Prop | Default | Notes |
+|------|---------|-------|
+| `name` | required | Phosphor icon id, kebab-case (e.g. `lightning`, `check-circle`, `github-logo`). Browse the catalog at <https://phosphoricons.com>. |
+| `weight` | `regular` | One of `thin`, `light`, `regular`, `bold`, `fill`, `duotone`. |
+| `size` | `32` | Render size in px. |
+| `tone` | `primary` | Color tone: `primary`, `secondary`, `accent`, `muted`, `surface`. Picks up from the theme cascade. |
+| `label` | undefined | Optional accessibility label. Omitted icons are marked decorative. |
+
+SVGs are lazy-loaded and inlined; PDF and HTML exports get the real SVG (no missing-icon placeholders in print). The editor's Decoration block menu has an "Icon" entry that opens a searchable picker over the full 1,512-icon catalog with weight selection.
+
 ## Containers (recursive)
 
 Containers wrap other blocks. Their `content` array follows the same shape as `slide.content`.
@@ -119,12 +184,15 @@ Containers wrap other blocks. Their `content` array follows the same shape as `s
 ```json
 {
   "type": "card",
-  "tone": "surface",
+  "tone": "primary",
   "variant": "soft",
   "padding": "md",
+  "header": "Key insight",
+  "icon": "lightbulb",
+  "iconWeight": "fill",
+  "iconTone": "accent",
   "content": [
-    { "type": "heading", "level": 3, "text": "Card title" },
-    { "type": "text", "text": "Card body." }
+    { "type": "text", "text": "Card body. Header + icon strip above is optional." }
   ]
 }
 ```
@@ -134,6 +202,12 @@ Containers wrap other blocks. Their `content` array follows the same shape as `s
 | `tone` | `primary` / `secondary` / `accent` / `muted` / `surface` | `surface` |
 | `variant` | `soft` / `solid` / `outline` | `soft` |
 | `padding` | `none` / `sm` / `md` / `lg` | `md` |
+| `header` | string | undefined. When set, renders as a bold strip above `content`. |
+| `icon` | Phosphor icon id | undefined. Renders next to `header` (or above content alone if no header). |
+| `iconWeight` | `thin` / `light` / `regular` / `bold` / `fill` / `duotone` | `regular` |
+| `iconTone` | Same tones as the card | falls back to the card's `tone` |
+
+Side-by-side cards in `two-col` / `three-col` layouts auto-stretch to equal height ONLY when every column contains exactly card blocks. A card paired with non-card content (bullets, text) keeps its natural height so it doesn't stretch into empty space.
 
 ### panel
 
@@ -211,12 +285,13 @@ See [features.md](features.md) for the full list of built-in keys and how to dec
 |------|-------|
 | Section title | `heading` |
 | Body text | `text` |
-| List of points | `bullets` |
+| List of points | `bullets` (add per-item `icon` for visual rhythm) |
 | Pull quote, customer testimonial | `quote` |
 | Image, optionally with caption | `image` |
 | Code snippet | `code` |
 | Video, iframe, Figma | `embed` |
-| Grouped info with a colored background | `card` |
+| Symbol / glyph as decoration | `icon` (Phosphor catalog) |
+| Grouped info with a colored background | `card` (set `header` + `icon` for a labeled tile) |
 | Full-width attention-grabbing band | `panel` with `bleed: all` |
 | Warning, tip, success message | `callout` |
 | Small inline tag | `badge` |

@@ -4,24 +4,31 @@
   "title": "What landed this quarter",
   "layout": "content",
   "transition": "fade",
+  "align": {
+    "title":   { "horizontal": "left",   "vertical": "top"    },
+    "content": { "horizontal": "center", "vertical": "middle" }
+  },
   "content": [
     { "type": "accent-bar", "tone": "accent", "size": "thick", "orientation": "horizontal" },
     { "type": "heading", "level": 2, "text": "Wins" },
     {
       "type": "bullets",
       "items": [
-        "Shipped the new onboarding flow (3 weeks early)",
-        "Grew weekly active users by 18%",
-        "Closed 7 enterprise deals"
+        { "text": "Shipped the new onboarding flow (3 weeks early)", "icon": "rocket-launch", "iconTone": "accent" },
+        { "text": "Grew weekly active users by 18%",                 "icon": "trend-up",      "iconTone": "primary" },
+        { "text": "Closed 7 enterprise deals",                       "icon": "handshake",     "iconTone": "secondary" }
       ]
     },
     {
       "type": "card",
-      "tone": "surface",
+      "tone": "primary",
       "variant": "soft",
       "padding": "md",
+      "header": "Customer voice",
+      "icon": "quotes",
+      "iconWeight": "fill",
+      "iconTone": "accent",
       "content": [
-        { "type": "heading", "level": 3, "text": "Customer voice" },
         {
           "type": "quote",
           "text": "Verso turned our weekly readouts from a chore into a deliverable.",

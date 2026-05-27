@@ -13,7 +13,7 @@ Your job with this skill is to help the user go from "I want a deck about X" to 
 
 Before you do anything else, run this small triage. Don't skip it. The first two questions decide the whole shape of the session.
 
-1. **Is the CLI installed?** Run `verso --version`. If it errors, ask the user before installing globally: `npm install -g @starside-io/verso-cli`. Don't install silently. Global npm installs are sticky.
+1. **Is the CLI installed?** Run `verso --version`. If it errors, ask the user before installing globally: `npm install -g @starside-io/verso-cli`. Don't install silently. Global npm installs are sticky. `verso init` detects whether `verso` is on PATH and only adds the CLI as a project dep when it isn't, so a global install means a clean scaffold with no redundant `node_modules`.
 
 2. **Where does the content come from?** Ask the user this directly, even if they didn't bring it up:
 
@@ -107,7 +107,7 @@ If the user seems hesitant or doesn't know, suggest a template and ask them to r
 
 4. **Pick layouts deliberately, don't default everything to `content`.** Cover slide goes to `cover`. Section dividers go to `section`. A vs B goes to `compare`. Big metric goes to `big-number`. Pull quote goes to `quote`. Closing slide goes to `closing`. See [references/layouts.md](references/layouts.md) for the full list and what each one expects in `content`.
 
-5. **Reach for blocks beyond `bullets`.** Slide after slide of bullets is the most common Verso failure mode. Use `callout` for warnings and tips, `card` and `panel` for grouped content, `image` (drop files in `assets/`), `code` for snippets, `accent-bar` and `divider` for visual rhythm. See [references/blocks.md](references/blocks.md) for the full catalog.
+5. **Reach for blocks beyond `bullets`.** Slide after slide of bullets is the most common Verso failure mode. Use `callout` for warnings and tips, `card` and `panel` for grouped content, `image` (drop files in `assets/`), `code` for snippets, `icon` for inline Phosphor icons, `accent-bar` and `divider` for visual rhythm. Cards can carry their own `header` text and a Phosphor `icon` at the top. Bullet items can carry per-item leading icons via `{ text, icon, iconWeight, iconTone }`. See [references/blocks.md](references/blocks.md) for the full catalog.
 
 6. Preview and iterate. Open `verso edit` and walk through the deck. Fix what looks off. The visual editor lets the user click around and tweak; if they want to keep iterating in there, that's fine, hand off.
 
@@ -134,11 +134,23 @@ If the user said the deck has more than one audience (sales vs eng, exec vs IC),
 
 - `verso build` for all paths, PDF, 16:9.
 - `verso build -f html` for a single self-contained HTML file with embedded base64 images. Best for email or cloud sharing.
+- `verso build -f png` for per-slide PNG screenshots at 1920x1080.
 - `verso build -f pdf -s a4` for print-friendly A4 PDF.
 - `verso build -p sales` for only the `sales` path.
 - `verso build -f html --no-inline-images` for smaller HTML using image URLs instead of base64.
 
 Output goes to `dist/` unless `-o` says otherwise. Ask the user which format they want before building. Defaults are fine for most cases but check.
+
+### Overflow warnings
+
+Every build target measures each rendered slide's natural height against the page height (1080px at 16:9). Slides that overshoot get a yellow warning line on stdout:
+
+```
+⚠ Slide "iterating" overflows by 541px (1621 of 1080).
+⚠ Slide "capstone" overflows by 608px (1688 of 1080).
+```
+
+The build still completes (overflow doesn't fail it) but content past the page boundary is silently clipped in the PDF/PNG. The same detection runs in the live editor preview: overflowing slides get a red badge in the slide list, the toolbar shows a `⚠ active slide overflows by Npx` pill, and the Export success message suffixes "N slide(s) overflow" if relevant. When a slide overflows, the fix is almost always to split it into two slides or drop a block.
 
 ## What you should and shouldn't do
 
@@ -158,7 +170,7 @@ When you need exact prop tables, full block lists, or the path-filter semantics,
 - [references/layouts.md](references/layouts.md): all 17 built-in layouts and what content they expect.
 - [references/themes.md](references/themes.md): built-in themes, the color cascade, and per-level overrides.
 - [references/path-branching.md](references/path-branching.md): `path_include` and `path_exclude` rules for slides and blocks.
-- [references/features.md](references/features.md): transitions, variables, watermark, embed, speaker mode.
+- [references/features.md](references/features.md): transitions, variables, watermark, embed, speaker mode, overflow detection, Phosphor icons, per-zone alignment.
 
 ## Templates
 

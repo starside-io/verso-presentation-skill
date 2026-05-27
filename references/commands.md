@@ -36,6 +36,10 @@ verso init sales-pitch -t multi-path
 
 If no name is provided, the directory is named `verso-deck`.
 
+### Global CLI detection
+
+`verso init` checks whether `verso` is already on PATH. When it is, the generated `package.json` omits the `@starside-io/verso-cli` dependency and the "next steps" hint skips the `npm install` line, because the global CLI already satisfies the project's `verso dev` and `verso build` scripts. When `verso` is NOT on PATH (e.g. an AI skill in a sandbox without a pre-installed CLI), the dep + install hint are kept so the project can bootstrap from `npm install` alone.
+
 ---
 
 ## verso new slide
@@ -181,7 +185,7 @@ Lists built-ins and project-local themes. Active one is marked `(active)`.
 
 ## verso build
 
-Export the deck to PDF or HTML.
+Export the deck to PDF, HTML, or PNG.
 
 ```
 verso build [options]
@@ -190,7 +194,7 @@ verso build [options]
 | Flag | Description |
 |------|-------------|
 | `-d, --dir <path>` | Project directory. |
-| `-f, --format <fmt>` | `pdf` or `html`. Default: `pdf`. |
+| `-f, --format <fmt>` | `pdf`, `html`, or `png`. Default: `pdf`. |
 | `-p, --path <id>` | Build one path only. |
 | `-o, --out <dir>` | Output directory. Default: `dist/`. |
 | `-s, --size <size>` | `16:9`, `4:3`, `letter`, `a4`. Default: `16:9`. |
@@ -200,6 +204,17 @@ verso build [options]
 
 - **PDF**: rendered via headless Chromium, print CSS rules apply, iframes substituted with fallback, transitions ignored.
 - **HTML**: single self-contained file. Navigation via arrow keys, space, and hash routing (`#1`, `#2`). Base64 images by default, shareable via email or cloud storage with no extra files.
+- **PNG**: per-slide screenshots at the configured page size (1920x1080 for 16:9). Useful for thumbnails, embedding individual slides in docs, or social-card generation.
+
+### Overflow warnings
+
+Every build measures each rendered slide's natural height against the page height and prints a yellow line per overflow:
+
+```
+⚠ Slide "iterating" overflows by 541px (1621 of 1080).
+```
+
+The build still succeeds. Content past the boundary is silently clipped in the export. The fix is to split the slide or drop a block.
 
 ### Examples
 
@@ -208,5 +223,6 @@ verso build                              # all paths, PDF 16:9
 verso build -p sales                     # sales path only
 verso build --format html                # HTML with embedded images
 verso build -f html --no-inline-images   # smaller HTML, external images
+verso build -f png                       # per-slide PNG screenshots
 verso build -f pdf -s a4                 # A4 print
 ```
