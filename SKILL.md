@@ -107,7 +107,14 @@ If the user seems hesitant or doesn't know, suggest a template and ask them to r
 
 4. **Pick layouts deliberately, don't default everything to `content`.** Cover slide goes to `cover`. Section dividers go to `section`. A vs B goes to `compare`. Big metric goes to `big-number`. Pull quote goes to `quote`. Closing slide goes to `closing`. See [references/layouts.md](references/layouts.md) for the full list and what each one expects in `content`.
 
-5. **Reach for blocks beyond `bullets`.** Slide after slide of bullets is the most common Verso failure mode. Use `callout` for warnings and tips, `card` and `panel` for grouped content, `image` (drop files in `assets/`), `code` for snippets, `icon` for inline Phosphor icons, `accent-bar` and `divider` for visual rhythm. Cards can carry their own `header` text and a Phosphor `icon` at the top. Bullet items can carry per-item leading icons via `{ text, icon, iconWeight, iconTone }`. See [references/blocks.md](references/blocks.md) for the full catalog.
+5. **Use the right block for the content. Don't default to bullets, but don't default to cards either.** Two opposite failure modes:
+   - Slide after slide of `bullets` reads like a Word doc. Reach for `callout` (warnings/tips), `quote` (testimonials), `image`, `code`, `accent-bar`, `divider` to break the rhythm.
+   - Wrapping every block in a `card` reads like a Trello board. Cards have weight: borders, padding, internal margins. Stacking 3-4 cards on the same slide visually flattens hierarchy and looks busy. **Reach for `card` only when the content is genuinely a discrete unit** (a definition, an example, a comparison side, a metric tile). For prose, sub-points, or simple structure, plain `heading` + `text` + `bullets` is almost always better.
+   - Cards can carry their own `header` text and a Phosphor `icon` strip. Use those when a card represents a named thing (a feature, a step, a card you'd actually call "the Goal card"). Skip them for cards that just hold a heading + body.
+   - Bullet items can carry per-item leading icons via `{ text, icon, iconWeight, iconTone }`. Useful for short feature lists or checklists. Skip on long prose-style bullets where the icon column adds noise.
+   - The standalone `icon` block is for hero positions: a single big glyph above a section title, or a tile inside a stats layout. Don't sprinkle inline `icon` blocks through body text.
+
+   See [references/blocks.md](references/blocks.md) for the full catalog.
 
 6. Preview and iterate. Open `verso edit` and walk through the deck. Fix what looks off. The visual editor lets the user click around and tweak; if they want to keep iterating in there, that's fine, hand off.
 
@@ -157,6 +164,9 @@ The build still completes (overflow doesn't fail it) but content past the page b
 - **Do** read [references/blocks.md](references/blocks.md) and [references/layouts.md](references/layouts.md) before writing any slide JSON. Never guess block types, layout names, or enum values from memory. Look them up.
 - **Do** open `verso edit` for the user once the deck is in decent shape. The visual editor is the primary intended authoring surface; you're scaffolding to save them time, not replacing it.
 - **Do** read 2-3 generated slides after `--from outline.md` and improve layouts and visual rhythm. The importer always produces all-`content`-layout slides with no decorations.
+- **Don't wrap every block in a `card`.** It looks structured to the LLM but visually it's a sea of bordered boxes. Cards are for discrete named units (Goal, Context, Rules, Step 1, Step 2). For prose, simple heading + text + bullets reads better. If you find yourself writing 3+ cards on a `content`-layout slide, ask whether the content is really 3 separate things or just one thing you've over-fragmented.
+- **Don't add icons everywhere.** Per-item bullet icons are great for short feature lists; they add noise on prose bullets. Standalone `icon` blocks are for hero positions, not inline decoration. Card `icon` strips are for cards that represent a named thing.
+- **Don't** put long code lines without thinking. Wrap happens at word boundaries, but a single 200-character string still looks ugly. Break long examples across multiple lines or trim them.
 - **Don't** install `@starside-io/verso-cli` globally without asking first. Global npm installs are sticky.
 - **Don't** invent block types or layout names. The full list is in [references/blocks.md](references/blocks.md) and [references/layouts.md](references/layouts.md). Anything not there will silently render as an empty placeholder.
 - **Don't** write a `verso.config.ts` unless the user actually needs custom layouts or components. The vast majority of decks need only `deck.json` and `slides/*.json`.

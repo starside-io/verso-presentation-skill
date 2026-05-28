@@ -181,18 +181,32 @@ Containers wrap other blocks. Their `content` array follows the same shape as `s
 
 ### card
 
+A simple card with no extras:
+
+```json
+{
+  "type": "card",
+  "tone": "surface",
+  "variant": "soft",
+  "padding": "md",
+  "content": [
+    { "type": "heading", "level": 3, "text": "Card title" },
+    { "type": "text", "text": "Card body." }
+  ]
+}
+```
+
+Cards optionally carry a `header` text and a Phosphor `icon` strip above content. Use those when the card represents a named thing (a feature, a step, a tile in a stats grid). Skip them for cards that just hold a heading + body — repeating the heading inside the card AND as the card header is noise.
+
 ```json
 {
   "type": "card",
   "tone": "primary",
   "variant": "soft",
-  "padding": "md",
-  "header": "Key insight",
-  "icon": "lightbulb",
-  "iconWeight": "fill",
-  "iconTone": "accent",
+  "header": "Goal",
+  "icon": "target",
   "content": [
-    { "type": "text", "text": "Card body. Header + icon strip above is optional." }
+    { "type": "text", "text": "The outcome you want." }
   ]
 }
 ```
@@ -202,10 +216,12 @@ Containers wrap other blocks. Their `content` array follows the same shape as `s
 | `tone` | `primary` / `secondary` / `accent` / `muted` / `surface` | `surface` |
 | `variant` | `soft` / `solid` / `outline` | `soft` |
 | `padding` | `none` / `sm` / `md` / `lg` | `md` |
-| `header` | string | undefined. When set, renders as a bold strip above `content`. |
+| `header` | string | undefined. Renders as a bold strip above `content`. |
 | `icon` | Phosphor icon id | undefined. Renders next to `header` (or above content alone if no header). |
 | `iconWeight` | `thin` / `light` / `regular` / `bold` / `fill` / `duotone` | `regular` |
 | `iconTone` | Same tones as the card | falls back to the card's `tone` |
+
+**Use cards sparingly.** Cards are for discrete units (a definition, an example, a comparison side, a metric tile). Stacking 3+ cards on a `content` layout creates visual fatigue and flattens hierarchy. For prose with sub-points, plain `heading` + `text` + `bullets` reads better.
 
 Side-by-side cards in `two-col` / `three-col` layouts auto-stretch to equal height ONLY when every column contains exactly card blocks. A card paired with non-card content (bullets, text) keeps its natural height so it doesn't stretch into empty space.
 
