@@ -7,7 +7,9 @@ description: "Create, edit, and export presentations using Verso, a JSON-driven 
 
 Verso is a JSON-driven presentation system. Decks are folders of JSON: a `deck.json` manifest plus one JSON file per slide in `slides/`. Themes are JSON too. The CLI (`verso`) scaffolds projects, runs a dev server, opens a visual editor, and exports to PDF or HTML.
 
-Your job with this skill is to help the user go from "I want a deck about X" to a working Verso project, optionally previewing and exporting it. The skill works in two flavors: starting from scratch (interview the user, hand-author slides) and starting from a Markdown outline (use Verso's built-in importer). The user should never have to learn the schema themselves: you author the files, they review.
+**The goal of this skill is to produce a presentation that looks designed**, not auto-generated. A working deck where every slide uses `content` layout, every block is a card, and every bullet has an icon is a failure mode, even if the schema accepts it. The user is trusting you with their visual reputation. Treat it like that.
+
+Your job is to help the user go from "I want a deck about X" to a polished Verso project, optionally previewing and exporting it. The skill works in two flavors: starting from scratch (interview the user, hand-author slides) and starting from a Markdown outline (use Verso's built-in importer). The user should never have to learn the schema themselves: you author the files, they review.
 
 ## When you start
 
@@ -24,6 +26,68 @@ Before you do anything else, run this small triage. Don't skip it. The first two
 3. **Capture the basics either way.** Title, audience(s), rough length (5 slides? 20?), tone (formal vs casual), and whether they want a particular theme or color palette. If you don't ask, you'll guess wrong.
 
 4. **Read the reference files before writing any slide content.** Before you create or edit any slide JSON, read [references/blocks.md](references/blocks.md) and [references/layouts.md](references/layouts.md) in full. These contain every valid block type, layout name, prop, and enum value. Do not guess field values from memory: look them up. Incorrect enum values (e.g. `"center"` instead of `"middle"` for vertical alignment) are silently accepted or rejected at render time, and debugging them is painful. The references are the source of truth.
+
+## Design principles
+
+These apply to both paths below. Read them before authoring slides; they're the difference between a deck that looks designed and one that looks AI-generated.
+
+### Vary the layout from slide to slide
+
+A deck where every slide uses `content` is the AI tell. The deck should feel like it has rhythm: openers (`cover`, `section`), structured slides (`compare`, `stats`, `big-number`, `quote`, `timeline`), text-and-image slides (`image-left`, `image-right`, `hero`, `full-image`), and a closer (`closing`). The `content` layout is the fallback when nothing more specific fits, not the default.
+
+Rule of thumb: across a 15-slide deck, you should be using **at least 4-5 different layouts**, not the same one 15 times. Open the deck after authoring and ask "does any single layout dominate?" If yes, fix it.
+
+### Match content density to layout
+
+| Content density | Pick from |
+|-----------------|-----------|
+| 1-3 short blocks (a quote, a metric, a section title) | `cover`, `section`, `closing`, `hero`, `big-number`, `quote`, `full-image` |
+| 4-8 blocks, mixed text and image | `content`, `image-left`, `image-right`, `two-col` |
+| 4-12 short parallel items (features, steps) | `three-col`, `stats`, `timeline`, `agenda` |
+| Two parallel things to compare | `compare` |
+
+Sparse content on a `content` layout looks like a half-empty page. A `hero` or `big-number` makes the same content land.
+
+### Bump font sizes when slides are sparse
+
+Verso renders at a fixed 1920x1080. A slide with two sentences in default `text` looks lost. Three options:
+
+1. **Move to a layout with bigger built-in type**: `hero` (oversized title + subtitle), `big-number` (huge number + label), `cover` (centered, large), `quote` (pulled quote, large). These don't need any font tweaking. **Prefer this option.**
+2. **Use `heading` level 1 instead of level 2 or 3** for any text that should be visually heavy. `level: 1` is the biggest.
+3. **Add a project `styles.css`** (or `verso.css`) at the project root with custom rules:
+   ```css
+   /* slides/highlights.json gets bigger body text */
+   .verso-slide[data-slide-id="highlights"] .verso-text {
+     font-size: 1.5rem;
+     line-height: 1.5;
+   }
+   ```
+   The file is auto-loaded by the viewer and bundled into PDF / HTML exports. Use this when a particular slide needs a one-off size beyond what the layout offers.
+
+Don't pad a sparse slide with filler text to "fill the space". Filler is more obvious than empty space.
+
+### Don't trade overflow for empty space, or empty space for overflow
+
+After authoring, run `verso build` and check the stdout for `⚠ Slide overflows by Npx` warnings. Each overflow means content past the page boundary is silently clipped. Two real fixes:
+
+- **Rework the layout.** A `content`-layout slide with 12 blocks usually fits as `two-col` or `three-col`. A wall of bullets can become two paired `card` blocks. A long list of tips can become a `stats` grid.
+- **Split into two slides.** If the content is genuinely too much for one slide, split it. Two slides at 80% full beat one slide at 130% with the bottom cut off. Title the split slides with a Part 1 / Part 2 pattern or just continue the topic naturally.
+
+The fix is NOT "delete content until it fits", and it's NOT "leave the overflow because it's almost there". Pick rework or split.
+
+The reverse failure: sparse slides with huge empty areas. Apply the density-to-layout table above. Empty space is a design choice in the right layout (`big-number`, `quote`, `cover`) and a bug in the wrong one (`content` with two bullets).
+
+### Verify visually before declaring done
+
+You don't have to guess at how a slide looks. `verso build -f png` exports each slide as a 1920x1080 PNG to `dist/`. Pick a couple of slides that worry you (the ones with the most content, the ones with the fewest, anything where you reached for a card or icon decision) and check them. The PNG files are small enough to read directly and tell you immediately whether the layout is working.
+
+When the user opens `verso edit`, they get live preview + the per-slide overflow badge in the slide list. Either path beats shipping a deck blind.
+
+### Consistency, then dynamic
+
+The deck should feel like one document. Same theme, same set of card tones used the same way, same kind of decoration. **Within that consistent shell**, vary the layout per slide so it has rhythm. The opposite (different themes per slide, ad-hoc card colors everywhere) is chaos.
+
+If you're tempted to switch theme or restyle for "variety", don't. The variety comes from layout choice, not theme.
 
 ## Path A: Markdown import
 
@@ -105,7 +169,7 @@ If the user seems hesitant or doesn't know, suggest a template and ask them to r
 
    Use the `verso new slide <id> -l <layout>` CLI to scaffold each stub, then fill in `content`. Or just write the JSON files directly. Verso doesn't care which way you got there.
 
-4. **Pick layouts deliberately, don't default everything to `content`.** Cover slide goes to `cover`. Section dividers go to `section`. A vs B goes to `compare`. Big metric goes to `big-number`. Pull quote goes to `quote`. Closing slide goes to `closing`. See [references/layouts.md](references/layouts.md) for the full list and what each one expects in `content`.
+4. **Pick layouts deliberately, don't default everything to `content`.** Cover slide goes to `cover`. Section dividers go to `section`. A vs B goes to `compare`. Big metric goes to `big-number`. Pull quote goes to `quote`. Closing slide goes to `closing`. See [Design principles → Vary the layout](#vary-the-layout-from-slide-to-slide) above and [references/layouts.md](references/layouts.md) for the full list and what each one expects in `content`.
 
 5. **Use the right block for the content. Don't default to bullets, but don't default to cards either.** Two opposite failure modes:
    - Slide after slide of `bullets` reads like a Word doc. Reach for `callout` (warnings/tips), `quote` (testimonials), `image`, `code`, `accent-bar`, `divider` to break the rhythm.
@@ -157,19 +221,37 @@ Every build target measures each rendered slide's natural height against the pag
 ⚠ Slide "capstone" overflows by 608px (1688 of 1080).
 ```
 
-The build still completes (overflow doesn't fail it) but content past the page boundary is silently clipped in the PDF/PNG. The same detection runs in the live editor preview: overflowing slides get a red badge in the slide list, the toolbar shows a `⚠ active slide overflows by Npx` pill, and the Export success message suffixes "N slide(s) overflow" if relevant. When a slide overflows, the fix is almost always to split it into two slides or drop a block.
+The build still completes (overflow doesn't fail it) but content past the page boundary is silently clipped in the PDF/PNG. The same detection runs in the live editor preview: overflowing slides get a red badge in the slide list, the toolbar shows a `⚠ active slide overflows by Npx` pill, and the Export success message suffixes "N slide(s) overflow" if relevant.
+
+See [Design principles → Don't trade overflow for empty space](#dont-trade-overflow-for-empty-space-or-empty-space-for-overflow). Briefly: rework the layout or split the slide. Don't ignore the warning and don't just delete content.
+
+### Visual check before sign-off
+
+When in doubt about how a slide actually looks, render it:
+
+```bash
+verso build -f png -p full
+```
+
+Per-slide PNGs land in `dist/`. Open the ones for your highest-density and lowest-density slides. Reading the PNG tells you in 5 seconds whether the layout works, whether anything overflows, and whether sparse slides have too much empty space. Cheaper than re-running `verso edit`.
 
 ## What you should and shouldn't do
 
+- **Do** read [Design principles](#design-principles) before writing any slide. Layout variety, density matching, and the don't-trade-overflow-for-empty-space rule are the difference between a designed deck and AI slop.
 - **Do** read [references/blocks.md](references/blocks.md) and [references/layouts.md](references/layouts.md) before writing any slide JSON. Never guess block types, layout names, or enum values from memory. Look them up.
 - **Do** open `verso edit` for the user once the deck is in decent shape. The visual editor is the primary intended authoring surface; you're scaffolding to save them time, not replacing it.
-- **Do** read 2-3 generated slides after `--from outline.md` and improve layouts and visual rhythm. The importer always produces all-`content`-layout slides with no decorations.
-- **Don't wrap every block in a `card`.** It looks structured to the LLM but visually it's a sea of bordered boxes. Cards are for discrete named units (Goal, Context, Rules, Step 1, Step 2). For prose, simple heading + text + bullets reads better. If you find yourself writing 3+ cards on a `content`-layout slide, ask whether the content is really 3 separate things or just one thing you've over-fragmented.
+- **Do** read 2-3 generated slides after `--from outline.md` and improve layouts and visual rhythm. The importer always produces all-`content`-layout slides with no decorations. Change at least half of them to something more specific.
+- **Do** `verso build -f png` a couple of slides when you're unsure how something will look. Quicker than re-launching the editor.
+- **Don't wrap every block in a `card`.** It looks structured to the LLM but visually it's a sea of bordered boxes. Cards are for discrete named units (Goal, Context, Rules, Step 1, Step 2). For prose, plain heading + text + bullets reads better. If you find yourself writing 3+ cards on a `content`-layout slide, ask whether the content is really 3 separate things or just one thing you've over-fragmented.
+- **Don't use the same layout on every slide.** Across a deck, you should reach for at least 4-5 different layouts. See [Design principles → Vary the layout](#vary-the-layout-from-slide-to-slide).
 - **Don't add icons everywhere.** Per-item bullet icons are great for short feature lists; they add noise on prose bullets. Standalone `icon` blocks are for hero positions, not inline decoration. Card `icon` strips are for cards that represent a named thing.
+- **Don't pad sparse slides with filler.** A sparse slide on the wrong layout looks empty. Move it to `hero`, `big-number`, `quote`, `cover`, or `section` and let the type sing. See [Design principles → Bump font sizes when slides are sparse](#bump-font-sizes-when-slides-are-sparse).
+- **Don't ignore overflow warnings.** Rework the layout or split the slide. See [Design principles → Don't trade overflow for empty space](#dont-trade-overflow-for-empty-space-or-empty-space-for-overflow).
 - **Don't** put long code lines without thinking. Wrap happens at word boundaries, but a single 200-character string still looks ugly. Break long examples across multiple lines or trim them.
 - **Don't** install `@starside-io/verso-cli` globally without asking first. Global npm installs are sticky.
 - **Don't** invent block types or layout names. The full list is in [references/blocks.md](references/blocks.md) and [references/layouts.md](references/layouts.md). Anything not there will silently render as an empty placeholder.
 - **Don't** write a `verso.config.ts` unless the user actually needs custom layouts or components. The vast majority of decks need only `deck.json` and `slides/*.json`.
+- **Don't switch themes mid-deck for variety.** Consistency at the theme level, variety at the layout level.
 
 ## Reference files
 
