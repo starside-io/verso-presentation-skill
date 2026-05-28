@@ -9,13 +9,17 @@ name: Release
 #   4. Creates a GitHub release with that tag and attaches the zip.
 #
 # Free on public repos. Uses the built-in GITHUB_TOKEN. No external services.
-#
-# To skip a release for a commit (e.g. a typo fix), include "[skip release]"
-# anywhere in the commit message.
+# Every push releases. To suppress a particular commit, delete the release
+# afterward; cheaper than a skip mechanism that would false-match prose.
 
 on:
   push:
     branches: [main]
+    paths:
+      - 'SKILL.md'
+      - 'references/**'
+      - 'assets/**'
+      - '.github/workflows/release.yml'
 
 permissions:
   contents: write
@@ -28,7 +32,6 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
-    if: "!contains(github.event.head_commit.message, '[skip release]')"
 
     steps:
       - name: Checkout (full history for tags)
