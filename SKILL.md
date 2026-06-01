@@ -33,26 +33,27 @@ These apply to both paths below. Read them before authoring slides; they're the 
 
 ### Vary the layout from slide to slide
 
-A deck where every slide uses `content` is the AI tell. The deck should feel like it has rhythm: openers (`cover`, `section`), structured slides (`compare`, `stats`, `big-number`, `quote`, `timeline`), text-and-image slides (`image-left`, `image-right`, `hero`, `full-image`), and a closer (`closing`). The `content` layout is the fallback when nothing more specific fits, not the default.
+A deck where every slide uses `content` is the AI tell. The deck should feel like it has rhythm: openers (`cover`, `section`, `chapter`, `title-band`), structured slides (`compare`, `stats`, `big-number`, `quote`, `timeline`, `q-and-a`, `roadmap`), grids (`quad`, `swot`, `icon-grid`, `kpi-band`, `bento`), text-and-image slides (`image-left`, `image-right`, `hero`, `full-image`, `picture-fill`, `picture-with-caption`), asymmetric splits (`one-third-left`, `one-third-right`, `two-thirds-left`, `two-thirds-right`, `split-vertical`), flow (`process`), and closers (`closing`, `callout-banner`). The `content` layout is the fallback when nothing more specific fits, not the default.
 
-Rule of thumb: across a 15-slide deck, you should be using **at least 4-5 different layouts**, not the same one 15 times. Open the deck after authoring and ask "does any single layout dominate?" If yes, fix it.
+Rule of thumb: across a 15-slide deck, you should be using **at least 5-7 different layouts**, not the same one 15 times. Open the deck after authoring and ask "does any single layout dominate?" If yes, fix it.
 
 ### Match content density to layout
 
 | Content density | Pick from |
 |-----------------|-----------|
-| 1-3 short blocks (a quote, a metric, a section title) | `cover`, `section`, `closing`, `hero`, `big-number`, `quote`, `full-image` |
-| 4-8 blocks, mixed text and image | `content`, `image-left`, `image-right`, `two-col` |
-| 4-12 short parallel items (features, steps) | `three-col`, `stats`, `timeline`, `agenda` |
-| Two parallel things to compare | `compare` |
+| 1-3 short blocks (a quote, a metric, a section title) | `cover`, `section`, `chapter`, `closing`, `hero`, `big-number`, `quote`, `full-image`, `picture-fill`, `title-only`, `callout-banner` |
+| 4-8 blocks, mixed text and image | `content`, `image-left`, `image-right`, `two-col`, `picture-with-caption`, `one-third-left`, `one-third-right`, `title-band` |
+| 4-12 short parallel items (features, steps) | `three-col`, `stats`, `timeline`, `agenda`, `icon-grid`, `quad`, `swot`, `kpi-band`, `bento`, `process`, `roadmap` |
+| Two parallel things to compare | `compare`, `split-vertical` |
+| One question + one answer | `q-and-a` |
 
-Sparse content on a `content` layout looks like a half-empty page. A `hero` or `big-number` makes the same content land.
+Sparse content on a `content` layout looks like a half-empty page. A `hero`, `big-number`, `callout-banner`, or `title-only` makes the same content land.
 
 ### Bump font sizes when slides are sparse
 
 Verso renders at a fixed 1920x1080. A slide with two sentences in default `text` looks lost. Three options:
 
-1. **Move to a layout with bigger built-in type**: `hero` (oversized title + subtitle), `big-number` (huge number + label), `cover` (centered, large), `quote` (pulled quote, large). These don't need any font tweaking. **Prefer this option.**
+1. **Move to a layout with bigger built-in type**: `hero`, `big-number`, `cover`, `quote`, `chapter`, `callout-banner`, `picture-fill`, `title-only`. These don't need any font tweaking. **Prefer this option.**
 2. **Use `heading` level 1 instead of level 2 or 3** for any text that should be visually heavy. `level: 1` is the biggest.
 3. **Add a project `styles.css`** (or `verso.css`) at the project root with custom rules:
    ```css
@@ -169,7 +170,7 @@ If the user seems hesitant or doesn't know, suggest a template and ask them to r
 
    Use the `verso new slide <id> -l <layout>` CLI to scaffold each stub, then fill in `content`. Or just write the JSON files directly. Verso doesn't care which way you got there.
 
-4. **Pick layouts deliberately, don't default everything to `content`.** Cover slide goes to `cover`. Section dividers go to `section`. A vs B goes to `compare`. Big metric goes to `big-number`. Pull quote goes to `quote`. Closing slide goes to `closing`. See [Design principles → Vary the layout](#vary-the-layout-from-slide-to-slide) above and [references/layouts.md](references/layouts.md) for the full list and what each one expects in `content`.
+4. **Pick layouts deliberately, don't default everything to `content`.** Cover slide goes to `cover`. Section dividers go to `section` or `chapter`. A vs B goes to `compare`. Big metric goes to `big-number`. Pull quote goes to `quote`. Closing slide goes to `closing`. Feature grids go to `icon-grid` or `quad`. KPI dashboards go to `kpi-band`. Magazine-style mixed grids go to `bento`. Process steps go to `process`. Q+A patterns go to `q-and-a`. Quarterly roadmaps go to `roadmap`. Background-image covers go to `picture-fill`. SWOT analyses go to `swot`. See [Design principles → Vary the layout](#vary-the-layout-from-slide-to-slide) above and [references/layouts.md](references/layouts.md) for the full 36-layout catalog with what each one expects in `content`.
 
 5. **Use the right block for the content. Don't default to bullets, but don't default to cards either.** Two opposite failure modes:
    - Slide after slide of `bullets` reads like a Word doc. Reach for `callout` (warnings/tips), `quote` (testimonials), `image`, `code`, `accent-bar`, `divider` to break the rhythm.
